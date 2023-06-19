@@ -2,6 +2,7 @@ package com.rashidmayes.clairvoyance;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.IAerospikeClient;
+import com.rashidmayes.clairvoyance.controller.ConnectController;
 import com.rashidmayes.clairvoyance.model.ApplicationModel;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
 import com.rashidmayes.clairvoyance.util.FileUtil;
@@ -55,13 +56,12 @@ public class ClairvoyanceFxApplication extends Application {
         stage.setY(primaryScreenBounds.getMinY());
         stage.setWidth(primaryScreenBounds.getWidth());
         stage.setHeight(primaryScreenBounds.getHeight());
-        var iconStream = getClass().getClassLoader().getResourceAsStream("images/icon.png");
-        Objects.requireNonNull(iconStream, "icon.png is missing");
         stage.getIcons().add(new Image("images/icon.png"));
 
         var resource = getClass().getClassLoader().getResource("fxml/connect.fxml");
         Objects.requireNonNull(resource, "connect.fxml is missing");
         Parent root = FXMLLoader.load(resource);
+        root.setUserData(ConnectController.ConnectionStyle.FIRST_TIME);
         Scene scene = new Scene(root);
 
         stage.setScene(scene);

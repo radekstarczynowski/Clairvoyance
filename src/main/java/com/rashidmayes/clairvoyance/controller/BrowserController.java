@@ -18,11 +18,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
@@ -45,13 +49,14 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     );
 
     private final Image rootIcon;
-    // TODO: 11/06/2023 fix this icon
     private final Image nodeIcon;
     private final Image namespaceIcon;
     private final Image setIcon;
 
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
+    @FXML
+    public GridPane browserGridPane;
     @FXML
     private TextArea console;
     @FXML
@@ -63,7 +68,7 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
 
     public BrowserController() {
         this.rootIcon = new Image("images/ic_cluster.png");
-        this.nodeIcon = new Image("images/node.png");
+        this.nodeIcon = new Image("images/ic_cluster.png");
         this.namespaceIcon = new Image("images/ic_storage.png");
         this.setIcon = new Image("images/ic_set.png");
     }
@@ -71,17 +76,18 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     @FXML
     public void initialize() {
         createLoggerAppenderForConsole();
-
         namespacesTree.getSelectionModel()
                 .selectedItemProperty()
                 .addListener(this);
-
         executor.scheduleAtFixedRate(updateClusterTreeView(), 0, 2, TimeUnit.MINUTES);
     }
 
     @Override
     public void changed(ObservableValue<? extends TreeItem<SimpleTreeNode>> observable, TreeItem<SimpleTreeNode> oldValue, TreeItem<SimpleTreeNode> newValue) {
         try {
+            if (newValue == null) {
+                return;
+            }
             var id = newValue.getValue().value.getId();
             var optionalTab = getTab(id);
 
@@ -89,17 +95,20 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
                 var tab = new Tab();
                 tab.setId(id);
                 tab.setText(newValue.getValue().displayName);
-
                 var identifiable = newValue.getValue().value;
 
                 if (identifiable instanceof NamespaceInfo) {
                     var resource = getClass().getClassLoader().getResource("fxml/tab_namespace.fxml");
-                    javafx.scene.Node load = FXMLLoader.load(resource);
-                    tab.setContent(load);
+                    Objects.requireNonNull(resource, "tab_namespace.fxml is missing");
+                    tab.setContent(FXMLLoader.load(resource));
                 } else if (identifiable instanceof SetInfo) {
-                    tab.setContent(FXMLLoader.load(getClass().getClassLoader().getResource("fxml/tab_set.fxml")));
+                    var resource = getClass().getClassLoader().getResource("fxml/tab_set.fxml");
+                    Objects.requireNonNull(resource, "tab_set.fxml is missing");
+                    tab.setContent(FXMLLoader.load(resource));
                 } else {
-                    tab.setContent(FXMLLoader.load(getClass().getClassLoader().getResource("fxml/tab_cluster.fxml")));
+                    var resource = getClass().getClassLoader().getResource("fxml/tab_cluster.fxml");
+                    Objects.requireNonNull(resource, "tab_cluster.fxml is missing");
+                    tab.setContent(FXMLLoader.load(resource));
                 }
                 tab.getContent().setUserData(identifiable);
                 tabs.getTabs().add(tab);
@@ -109,6 +118,7 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
             }
         } catch (Exception e) {
             ClairvoyanceLogger.logger.error(e.getMessage(), e);
+            ClairvoyanceFxApplication.displayAlert(e.getMessage());
         }
     }
 
@@ -116,15 +126,34 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     protected void handleReconnect(ActionEvent event) {
         event.consume();
         try {
-            createNewClient();
-            updateClusterTreeView().run();
+            var resource = getClass().getClassLoader().getResource("fxml/connect.fxml");
+            Objects.requireNonNull(resource, "connect.fxml is missing");
+            Parent root = FXMLLoader.load(resource);
+            root.setUserData(ConnectController.ConnectionStyle.RECONNECT);
+
+            Scene scene = new Scene(root, 500, 400);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+
+            stage.showAndWait();
+            var userData = root.getUserData();
+            if (userData != null && ((ConnectController.ConnectionResult) userData).connected()) {
+                ClairvoyanceLogger.logger.info("received reconnect request");
+                tabs.getTabs().clear();
+                namespacesTree.getRoot().getChildren().clear();
+                //createNewClient();
+                updateClusterTreeView().run();
+            }
         } catch (Exception e) {
             ClairvoyanceLogger.logger.error(e.getMessage(), e);
+            ClairvoyanceFxApplication.displayAlert("there was an error when trying to reconnect");
         }
     }
 
     @FXML
     protected void handleClearCache(ActionEvent event) {
+        event.consume();
         ApplicationModel.INSTANCE.runInBackground(FileUtil::clearCache);
     }
 
@@ -140,7 +169,7 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
 
                 var resource = getClass().getClassLoader().getResource("fxml/tab_about.fxml");
                 Objects.requireNonNull(resource, "tab_about.fxml is missing");
-                Parent root = FXMLLoader.load(resource);
+                var root = (Parent) FXMLLoader.load(resource);
                 tab.setContent(root);
 
                 tabs.getTabs().add(tab);
@@ -182,26 +211,6 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     }
 
     @FXML
-    protected void handleClusterDump(ActionEvent event) {
-        event.consume();
-        try {
-            Tab tab = new Tab();
-            tab.setId("full-cluster-dump");
-            tab.setText("Full cluster dump");
-
-            var resource = getClass().getClassLoader().getResource("fxml/tab_cluster.fxml");
-            Objects.requireNonNull(resource, "tab_cluster.fxml cannot be null");
-            Parent root = FXMLLoader.load(resource);
-            tab.setContent(root);
-
-            tabs.getTabs().add(tab);
-            tabs.getSelectionModel().select(tab);
-        } catch (Exception e) {
-            ClairvoyanceLogger.logger.error(e.getMessage(), e);
-        }
-    }
-
-    @FXML
     protected void handleExit(ActionEvent event) {
         event.consume();
         System.exit(0);
@@ -215,9 +224,8 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
 
     public Runnable updateClusterTreeView() {
         return () -> {
-            ClairvoyanceLogger.logger.info("submitting refresh cluster tree view task");
             Platform.runLater(() -> {
-                ClairvoyanceLogger.logger.info("refreshing cluster tree view");
+                ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "refreshing cluster tree view");
                 try {
                     var client = ClairvoyanceFxApplication.getClient();
                     updateTreeView(client);
@@ -274,8 +282,7 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
             buildNamespaces(nodeInfo, nodeViewNode);
         } else {
             var nodeModelNode = createNodeModelNode(nodeInfo);
-            // todo: uncomment after fixing icon
-            var nodeViewNode = new TreeItem<>(nodeModelNode /*, new ImageView(nodeIcon)*/);
+            var nodeViewNode = new TreeItem<>(nodeModelNode, new ImageView(nodeIcon));
             nodeViewNode.setExpanded(true);
             namespacesTree.getRoot().getChildren().add(nodeViewNode);
 
@@ -365,12 +372,11 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
         return Optional.empty();
     }
 
-    private static IAerospikeClient createNewClient() {
+    private static void createNewClient() {
         var aerospikeClientResult = ApplicationModel.INSTANCE.createNewAerospikeClient();
         if (aerospikeClientResult.hasError()) {
-            ClairvoyanceFxApplication.displayAlert(aerospikeClientResult.getError());
             throw new AerospikeException(aerospikeClientResult.getError());
         }
-        return aerospikeClientResult.getData();
     }
+
 }

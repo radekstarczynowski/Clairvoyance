@@ -5,7 +5,8 @@
 <?import javafx.scene.layout.*?>
 
 <GridPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea"
-          fx:controller="com.rashidmayes.clairvoyance.controller.BrowserController">
+          fx:controller="com.rashidmayes.clairvoyance.controller.BrowserController"
+fx:id="browserGridPane">
     <MenuBar GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
              GridPane.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="File">
@@ -30,7 +31,6 @@
                       onAction="#handleWeb" text="Data Modeling"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" onAction="#handleClusterDump" text="Full Report"/>
             <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About"/>
         </Menu>
     </MenuBar>

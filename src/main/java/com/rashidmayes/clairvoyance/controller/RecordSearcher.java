@@ -2,6 +2,7 @@ package com.rashidmayes.clairvoyance.controller;
 
 import com.aerospike.client.Key;
 import com.rashidmayes.clairvoyance.model.RecordRow;
+import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -20,6 +21,7 @@ public class RecordSearcher {
                 searchResult.add(recordRow);
             }
         }
+        ClairvoyanceLogger.logger.info("record searcher found {} records", searchResult.size());
     }
 
     public List<RecordRow> getSearchResult() {

@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -116,6 +115,7 @@ public class SetScanner {
             scanCallbacks.scanTerminated(internalBuffer);
         } catch (Exception exception) {
             ClairvoyanceLogger.logger.error(exception.getMessage(), exception);
+            ClairvoyanceFxApplication.displayAlert("could not scan set: " + exception.getMessage());
         }
     }
 

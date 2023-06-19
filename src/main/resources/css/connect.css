@@ -5,7 +5,7 @@ root {
 	-fx-background-color: #c31618;
 }
 .label {
-    -fx-font-size: 12.0px;
+    -fx-font-size: 12px;
     -fx-text-fill: #ffffff;
 }
 .text-inpust {
@@ -14,7 +14,7 @@ root {
 }
 .button {
     -fx-text-fill: white;
-    -fx-font-size: 12.0px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-background-color: #940a0b;
 }

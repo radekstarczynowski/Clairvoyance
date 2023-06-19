@@ -1,17 +1,13 @@
-#pages {
-    -fx-background-color: #cccccc;
-    -fx-text-fill: #c31618;
-    -fx-font-size: 10px;
-    -fx-font-family: "Courier";
-}
 #recordDetails {
-    -fx-background-color: #cccccc;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-font-family: "Courier";
+    /*-fx-background-color: #f3f3f3;*/
+    -fx-background-color: #ffffff;
+    -fx-text-fill: black;
+    -fx-font-size: 14px;
+    -fx-font-family: "Monospaced";
 }
 #recordDetails *.content {
-    -fx-background-color: #888888;
+    /*-fx-background-color: #f3f3f3;*/
+    -fx-background-color: #ffffff;
 }
 
 .list-cell:filled:selected:focused, .list-cell:filled:selected {

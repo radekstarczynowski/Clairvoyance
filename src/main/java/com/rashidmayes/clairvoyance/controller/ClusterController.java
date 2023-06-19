@@ -5,20 +5,17 @@ import com.aerospike.client.cluster.Node;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rashidmayes.clairvoyance.ClairvoyanceFxApplication;
 import com.rashidmayes.clairvoyance.model.ApplicationModel;
-import com.rashidmayes.clairvoyance.model.NamespaceInfo;
+import com.rashidmayes.clairvoyance.model.NodeInfo;
 import com.rashidmayes.clairvoyance.model.NodeInfoMapper;
+import com.rashidmayes.clairvoyance.model.RootInfo;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TextArea;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-
-import java.util.stream.Stream;
 
 public class ClusterController {
 
@@ -34,12 +31,18 @@ public class ClusterController {
     @FXML
     public void initialize() {
         ApplicationModel.INSTANCE.runInBackground(() -> {
-            ClairvoyanceLogger.logger.info("starting cluster dump");
+            ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "starting cluster dump");
             try {
                 var client = ClairvoyanceFxApplication.getClient();
-                var json = getClusterInfoJson(client);
-                renderResult(json);
-                ClairvoyanceLogger.logger.info("cluster dump completed");
+                var node = clusterWebView.getUserData();
+                if (node instanceof NodeInfo) {
+                    var json = getClusterSingleNodeInfoJson((NodeInfo) node);
+                    renderResult(json);
+                } else if (node instanceof RootInfo) {
+                    var json = getClusterInfoJson(client);
+                    renderResult(json);
+                }
+                ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "cluster dump completed");
             } catch (Exception e) {
                 ClairvoyanceLogger.logger.error(e.getMessage(), e);
                 ClairvoyanceFxApplication.displayAlert("there was an error while performing cluster dump - see logs for details");
@@ -76,9 +79,20 @@ public class ClusterController {
         return stringBuilder.append("]").toString();
     }
 
+    private String getClusterSingleNodeInfoJson(NodeInfo singleNodeInfo) {
+        var stringBuilder = new StringBuilder("[");
+        if (singleNodeInfo != null) {
+            var nodeDump = json(singleNodeInfo);
+            stringBuilder.append(nodeDump);
+        }
+        return stringBuilder.append("]").toString();
+    }
+
     private String getHtml() {
         try (var inputStream = getClass().getClassLoader().getResourceAsStream("html/cluster.html")) {
-            return new String(inputStream.readAllBytes());
+            if (inputStream != null) {
+                return new String(inputStream.readAllBytes());
+            }
         } catch (Exception exception) {
             ClairvoyanceLogger.logger.error(exception.getMessage(), exception);
         }

@@ -24,18 +24,16 @@ public class NamespaceController {
 
     private final NodeInfoMapper nodeInfoMapper = new NodeInfoMapper();
 
-    public NamespaceController() {}
-
     @FXML
     public void initialize() {
         ApplicationModel.INSTANCE.runInBackground(() -> {
-            ClairvoyanceLogger.logger.info("starting fetching namespace info");
+            ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "starting fetching namespace info");
             try {
                 var client = ClairvoyanceFxApplication.getClient();
                 var namespaceInfo = (NamespaceInfo) namespaceWebView.getUserData();
                 var namespaceResult = getNamespaceInfoJson(client, namespaceInfo);
                 renderResult(namespaceResult);
-                ClairvoyanceLogger.logger.info("fetching namespace info completed");
+                ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "fetching namespace info completed");
             } catch (Exception e) {
                 ClairvoyanceLogger.logger.error(e.getMessage(), e);
                 ClairvoyanceFxApplication.displayAlert("there was an error while performing cluster dump - see logs for details");
@@ -73,7 +71,9 @@ public class NamespaceController {
 
     private String getHtml() {
         try (var inputStream = getClass().getClassLoader().getResourceAsStream("html/namespace.html")) {
-            return new String(inputStream.readAllBytes());
+            if (inputStream != null) {
+                return new String(inputStream.readAllBytes());
+            }
         } catch (Exception exception) {
             ClairvoyanceLogger.logger.error(exception.getMessage(), exception);
         }

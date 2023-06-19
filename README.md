@@ -7,4 +7,5 @@ run with <code>mvn clean compile javafx:run</code>
 ### for intellij
 1. download javafx sdk
 2. add vm options:
-<code>--module-path >>some-path<</javafx-sdk-20.0.1/lib --add-modules javafx.graphics,javafx.base,javafx.controls,javafx.fxml</code>
+<code>--module-path >>some-path<</javafx-sdk-20.0.1/lib --add-modules javafx.graphics,javafx.base,javafx.controls,javafx.fxml,javafx.web</code>
+3. or can be run with <code>java >>modules<< -jar target/>>jar-with-dependencies<<</code>

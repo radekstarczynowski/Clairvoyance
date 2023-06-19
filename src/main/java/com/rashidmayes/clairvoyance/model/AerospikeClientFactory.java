@@ -23,10 +23,10 @@ public class AerospikeClientFactory {
             var policy = createPolicy(connectionInfo);
             var client = new AerospikeClient(policy, connectionInfo.host(), connectionInfo.port());
             setDefaultConnectionParameters(client);
-            ClairvoyanceLogger.logger.info("created new aerospike client");
+            ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "created new aerospike client");
             return Result.of(client);
         } catch (AerospikeException exception) {
-            ClairvoyanceLogger.logger.error("could not create aerospike client", exception);
+            ClairvoyanceLogger.logger.error(ClairvoyanceLogger.IN_APP_CONSOLE, "could not create aerospike client", exception);
             return Result.error("could not connect to cluster: " + exception.getMessage());
         }
     }

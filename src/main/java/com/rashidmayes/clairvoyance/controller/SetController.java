@@ -32,7 +32,7 @@ import javafx.util.Callback;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SetController {
@@ -58,9 +58,6 @@ public class SetController {
     private final AtomicReference<SetScanner> scannerReference = new AtomicReference<>();
     private final AtomicReference<SetInfo> setInfoReference = new AtomicReference<>();
 
-    public SetController() {
-    }
-
     @FXML
     public void initialize() {
         rootPane.sceneProperty()
@@ -73,6 +70,7 @@ public class SetController {
     @FXML
     public void refreshAction(ActionEvent event) {
         event.consume();
+        ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "refreshing set {}", setInfoReference.get().getName());
         ApplicationModel.INSTANCE.runInBackground(() -> {
             buffer.clear();
             Platform.runLater(() -> {
@@ -92,7 +90,7 @@ public class SetController {
     @FXML
     public void cancelAction(ActionEvent event) {
         event.consume();
-        ClairvoyanceLogger.logger.info("canceling scan if any active");
+        ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "canceling scan if any active");
         scannerReference.get().cancelScan();
     }
 
@@ -118,7 +116,7 @@ public class SetController {
             if (index > list.size() - 1) {
                 index = 0;
             }
-            ClairvoyanceLogger.logger.info("page index {}", index);
+            ClairvoyanceLogger.logger.info("creating page with index {}", index);
             int fromIndex = index * ROWS_PER_PAGE;
             int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, list.size());
             if (fromIndex > toIndex) {
@@ -142,7 +140,7 @@ public class SetController {
                 var info = (SetInfo) rootPane.getUserData();
                 setInfoReference.set(info);
                 scannerReference.set(createScanner(info));
-                ClairvoyanceLogger.logger.info("fetching set {}", info.getName());
+                ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "fetching set {}", info.getName());
 
                 Platform.runLater(this::createLoader);
 
@@ -175,28 +173,26 @@ public class SetController {
     private void scanDoneCallback(List<RecordRow> buffer) {
         this.buffer.clear();
         this.buffer.addAll(buffer);
+        ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "done fetching set {}", setInfoReference.get().getName());
         Platform.runLater(() -> updateViewFromBuffer(this.buffer));
     }
 
     private void updateViewFromBuffer(List<RecordRow> buffer) {
         var columnsToAdd = new LinkedList<String>();
-
         for (var recordRow : buffer) {
             var recordBins = recordRow.getRecord().bins.keySet();
-            for (String recordBin : recordBins) {
+            for (var recordBin : recordBins) {
                 if (!columnsToAdd.contains(recordBin)) {
                     columnsToAdd.add(recordBin);
                 }
             }
         }
+        var tableColumns = new LinkedList<TableColumn<RecordRow, ?>>();
+        tableColumns.add(createIndexColumn());
+        tableColumns.add(createDigestColumn());
+        tableColumns.addAll(createDataColumns(columnsToAdd));
 
-        var c = new LinkedList<TableColumn<RecordRow, ?>>();
-        c.add(createIndexColumn());
-        c.add(createDigestColumn());
-        c.addAll(createDataColumns(columnsToAdd));
-
-
-        dataTable.getColumns().setAll(c);
+        dataTable.getColumns().setAll(tableColumns);
         dataTable.getItems().setAll(buffer);
 
         createPagination(buffer);
@@ -241,7 +237,7 @@ public class SetController {
         try {
             page = Integer.parseInt(index);
         } catch (NumberFormatException exception) {
-            ClairvoyanceLogger.logger.warn("incorrect integer value");
+            ClairvoyanceLogger.logger.warn(ClairvoyanceLogger.IN_APP_CONSOLE, "incorrect integer value");
         }
         pagination.setCurrentPageIndex(page - 1);
     }
@@ -304,11 +300,11 @@ public class SetController {
         var hbox = new HBox();
         hbox.setAlignment(Pos.CENTER);
 
-        var iconImage = getClass().getClassLoader().getResourceAsStream("images/spinner.gif");
-        Objects.requireNonNull(iconImage, "ic_touch.png is missing");
-        var loaderGif = new ImageView(new Image(iconImage));
+        var loader = Optional.ofNullable(getClass().getClassLoader().getResourceAsStream("images/spinner.gif"))
+                .map(stream -> (Node) new ImageView(new Image(stream)))
+                .orElse(new Label("Loading..."));
 
-        hbox.getChildren().add(loaderGif);
+        hbox.getChildren().add(loader);
         vbox.getChildren().add(hbox);
 
         vbox.prefWidthProperty().bind(paginationGrid.widthProperty());
@@ -321,7 +317,7 @@ public class SetController {
         var digestColumn = new TableColumn<RecordRow, String>("Digest");
         digestColumn.setMinWidth(220);
         digestColumn.setCellValueFactory(param -> {
-            RecordRow recordRow = param.getValue();
+            var recordRow = param.getValue();
             if (recordRow != null) {
                 return new SimpleStringProperty(Base64.encode(recordRow.getKey().digest));
             }

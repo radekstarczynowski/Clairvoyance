@@ -40,10 +40,6 @@ public class ApplicationModel {
         EXECUTOR.execute(action);
     }
 
-    public <T> Future<T> runInBackground(Callable<T> callable) {
-        return EXECUTOR.submit(callable);
-    }
-
     public Result<IAerospikeClient, String> createNewAerospikeClient() {
         ClairvoyanceLogger.logger.info("creating new aerospike client");
         var clientResult = aerospikeClientFactory.create(appStorage.getCurrentConnectionInfo());
