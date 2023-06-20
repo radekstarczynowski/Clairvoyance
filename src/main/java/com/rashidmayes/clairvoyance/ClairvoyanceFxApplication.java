@@ -5,7 +5,6 @@ import com.aerospike.client.IAerospikeClient;
 import com.rashidmayes.clairvoyance.controller.ConnectController;
 import com.rashidmayes.clairvoyance.model.ApplicationModel;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
-import com.rashidmayes.clairvoyance.util.FileUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -72,7 +71,6 @@ public class ClairvoyanceFxApplication extends Application {
         return event -> {
             try {
                 PREFERENCES.sync();
-                FileUtil.clearCache();
             } catch (BackingStoreException e) {
                 ClairvoyanceLogger.logger.error(e.getMessage(), e);
             }

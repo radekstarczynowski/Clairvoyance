@@ -3,14 +3,12 @@ package com.rashidmayes.clairvoyance.controller;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import com.aerospike.client.AerospikeException;
 import com.aerospike.client.IAerospikeClient;
 import com.aerospike.client.cluster.Node;
 import com.rashidmayes.clairvoyance.ClairvoyanceFxApplication;
 import com.rashidmayes.clairvoyance.SimpleTreeNode;
 import com.rashidmayes.clairvoyance.model.*;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
-import com.rashidmayes.clairvoyance.util.FileUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -142,19 +140,12 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
                 ClairvoyanceLogger.logger.info("received reconnect request");
                 tabs.getTabs().clear();
                 namespacesTree.getRoot().getChildren().clear();
-                //createNewClient();
                 updateClusterTreeView().run();
             }
         } catch (Exception e) {
             ClairvoyanceLogger.logger.error(e.getMessage(), e);
             ClairvoyanceFxApplication.displayAlert("there was an error when trying to reconnect");
         }
-    }
-
-    @FXML
-    protected void handleClearCache(ActionEvent event) {
-        event.consume();
-        ApplicationModel.INSTANCE.runInBackground(FileUtil::clearCache);
     }
 
     @FXML
@@ -370,13 +361,6 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
             }
         }
         return Optional.empty();
-    }
-
-    private static void createNewClient() {
-        var aerospikeClientResult = ApplicationModel.INSTANCE.createNewAerospikeClient();
-        if (aerospikeClientResult.hasError()) {
-            throw new AerospikeException(aerospikeClientResult.getError());
-        }
     }
 
 }

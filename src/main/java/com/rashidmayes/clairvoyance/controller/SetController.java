@@ -1,6 +1,7 @@
 package com.rashidmayes.clairvoyance.controller;
 
 import com.aerospike.client.Key;
+import com.rashidmayes.clairvoyance.ClairvoyanceFxApplication;
 import com.rashidmayes.clairvoyance.NoSQLCellFactory;
 import com.rashidmayes.clairvoyance.SetScanner;
 import com.rashidmayes.clairvoyance.model.ApplicationModel;
@@ -29,6 +30,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,13 +42,17 @@ public class SetController {
     @FXML
     public TextField searchKeyField;
     @FXML
+    public CheckBox readOnlyCheckbox;
+    @FXML
+    public ComboBox<String> keyTypeComboBox;
+    @FXML
     private GridPane rootPane;
     @FXML
     public GridPane paginationGrid;
     @FXML
     private TextArea recordDetails;
 
-    private static final int ROWS_PER_PAGE = 20;
+    private static final int ROWS_PER_PAGE = 30;
 
     private final ChangeListener<? super Scene> loadTableChangeListener = loadTableChangeListener();
     private final ChangeListener<? super RecordRow> rowClickedListener = rowClickedListener();
@@ -80,6 +86,7 @@ public class SetController {
                 recordDetails.setText(null);
                 searchKeyField.setText("");
                 recordSearcher.reset();
+                keyTypeComboBox.getSelectionModel().select("string");
                 createLoader();
             });
             var scanner = scannerReference.get();
@@ -97,17 +104,35 @@ public class SetController {
     @FXML
     public void searchByKey(ActionEvent event) {
         event.consume();
-        var set = setInfoReference.get();
-        var keyText = searchKeyField.getText();
+        try {
+            var setInfo = setInfoReference.get();
+            var keyText = searchKeyField.getText();
 
-        if (keyText == null || keyText.isBlank()) {
-            recordSearcher.reset();
-            Platform.runLater(() -> updateViewFromBuffer(buffer));
-        } else {
-            var key = new Key(set.getNamespace(), set.getName(), keyText);
-            recordSearcher.search(key, buffer);
-            Platform.runLater(() -> updateViewFromBuffer(recordSearcher.getSearchResult()));
+            if (keyText == null || keyText.isBlank()) {
+                recordSearcher.reset();
+                Platform.runLater(() -> updateViewFromBuffer(buffer));
+            } else {
+                var selectedItem = keyTypeComboBox.getSelectionModel().getSelectedItem();
+                var key = createKey(setInfo, keyText, selectedItem);
+                recordSearcher.search(key, buffer);
+                Platform.runLater(() -> updateViewFromBuffer(recordSearcher.getSearchResult()));
+            }
+        } catch (Exception exception) {
+            ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, exception.getMessage());
+            ClairvoyanceLogger.logger.info(exception.getMessage(), exception);
+            ClairvoyanceFxApplication.displayAlert("Cannot search record");
         }
+    }
+
+    private Key createKey(SetInfo setInfo, String keyText, String selectedItem) {
+        return switch (selectedItem) {
+            case "string" -> new Key(setInfo.getNamespace(), setInfo.getName(), keyText);
+            case "byte array" -> new Key(setInfo.getNamespace(), setInfo.getName(), decodeString(keyText));
+            case "integer" -> new Key(setInfo.getNamespace(), setInfo.getName(), Integer.parseInt(keyText));
+            case "long" -> new Key(setInfo.getNamespace(), setInfo.getName(), Long.parseLong(keyText));
+            case "digest" -> new Key(setInfo.getNamespace(), decodeString(keyText), setInfo.getName(), null);
+            default -> throw new IllegalStateException("Unexpected value: " + selectedItem);
+        };
     }
 
     private Callback<Integer, Node> createPage() {
@@ -143,10 +168,7 @@ public class SetController {
                 ClairvoyanceLogger.logger.info(ClairvoyanceLogger.IN_APP_CONSOLE, "fetching set {}", info.getName());
 
                 Platform.runLater(this::createLoader);
-
-                ApplicationModel.INSTANCE.runInBackground(() -> {
-                    scannerReference.get().scan();
-                });
+                ApplicationModel.INSTANCE.runInBackground(() -> scannerReference.get().scan());
             }
         };
     }
@@ -178,15 +200,7 @@ public class SetController {
     }
 
     private void updateViewFromBuffer(List<RecordRow> buffer) {
-        var columnsToAdd = new LinkedList<String>();
-        for (var recordRow : buffer) {
-            var recordBins = recordRow.getRecord().bins.keySet();
-            for (var recordBin : recordBins) {
-                if (!columnsToAdd.contains(recordBin)) {
-                    columnsToAdd.add(recordBin);
-                }
-            }
-        }
+        var columnsToAdd = getBinsForRecords(buffer);
         var tableColumns = new LinkedList<TableColumn<RecordRow, ?>>();
         tableColumns.add(createIndexColumn());
         tableColumns.add(createDigestColumn());
@@ -196,6 +210,19 @@ public class SetController {
         dataTable.getItems().setAll(buffer);
 
         createPagination(buffer);
+    }
+
+    private List<String> getBinsForRecords(List<RecordRow> buffer) {
+        var columnsToAdd = new LinkedList<String>();
+        for (var recordRow : buffer) {
+            var recordBins = recordRow.getRecord().bins.keySet();
+            for (var recordBin : recordBins) {
+                if (!columnsToAdd.contains(recordBin)) {
+                    columnsToAdd.add(recordBin);
+                }
+            }
+        }
+        return columnsToAdd;
     }
 
     private void createPagination(List<RecordRow> buffer) {
@@ -324,6 +351,14 @@ public class SetController {
             return new SimpleStringProperty("");
         });
         return digestColumn;
+    }
+
+    private byte[] decodeString(String str) {
+        try {
+            return Base64.decode(str);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

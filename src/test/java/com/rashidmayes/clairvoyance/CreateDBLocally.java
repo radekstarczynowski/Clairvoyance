@@ -41,9 +41,16 @@ public class CreateDBLocally {
 //            }
 
             // create users
+//            var users = createUsers();
+//            users.forEach(user -> {
+//                var key = new Key("test", "users", user.getUuid());
+//                var data = new Bin("userData", json(user));
+//                aerospikeClient.put(null, key, data);
+//            });
+
             var users = createUsers();
             users.forEach(user -> {
-                var key = new Key("test", "users", user.getUuid());
+                var key = new Key("test", "users_2", user.getUuid());
                 var data = new Bin("userData", json(user));
                 aerospikeClient.put(null, key, data);
             });
@@ -78,7 +85,7 @@ public class CreateDBLocally {
 
     @SneakyThrows
     private static String json(Object obj) {
-        return ClairvoyanceObjectMapper.objectWriter.writeValueAsString(obj);
+        return ClairvoyanceObjectMapper.objectMapper.writeValueAsString(obj);
     }
 
 }

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
+<?import java.lang.*?>
 <?import java.net.URL?>
 <GridPane id="rootPane" fx:id="rootPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="com.rashidmayes.clairvoyance.controller.SetController">
@@ -18,15 +20,36 @@
             </HBox>
             <HBox spacing="3">
                 <TextField fx:id="searchKeyField" promptText="search by key"/>
+                <ComboBox fx:id="keyTypeComboBox">
+                    <value>
+                        <String fx:value="string"/>
+                    </value>
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="string"/>
+                            <String fx:value="digest"/>
+                            <String fx:value="byte array"/>
+                            <String fx:value="integer"/>
+                            <String fx:value="long"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
                 <Button fx:id="startSearchButton" onAction="#searchByKey" text="Search"/>
             </HBox>
         </HBox>
     </ToolBar>
 
-    <SplitPane dividerPositions="0.6, 0.9" GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.hgrow="ALWAYS"
-               GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
-        <GridPane fx:id="paginationGrid" GridPane.columnIndex="1" GridPane.columnSpan="1" GridPane.halignment="CENTER"
-                  GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+    <SplitPane fx:id="splitPane"
+               GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES"
+               dividerPositions="0.6, 0.8">
+        <GridPane fx:id="paginationGrid"
+                  GridPane.halignment="CENTER"
+                  GridPane.hgrow="ALWAYS"
+                  GridPane.vgrow="ALWAYS"
+                  GridPane.columnIndex="1"
+                  GridPane.columnSpan="1"
+                  GridPane.rowIndex="1"
+        >
         </GridPane>
         <TextArea id="recordDetails" fx:id="recordDetails" editable="false" promptText="select record to see details">
             <font>

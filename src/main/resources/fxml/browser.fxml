@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
+<?import java.net.URL?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea"
           fx:controller="com.rashidmayes.clairvoyance.controller.BrowserController"
-fx:id="browserGridPane">
+          fx:id="browserGridPane">
     <MenuBar GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
              GridPane.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#handleReconnect" text="Reconnect"/>
-            <MenuItem mnemonicParsing="false" onAction="#handleClearCache" text="Clear Cache"/>
             <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Documentation">
@@ -35,17 +33,26 @@ fx:id="browserGridPane">
         </Menu>
     </MenuBar>
 
-    <SplitPane dividerPositions="0.8,0.5" orientation="VERTICAL" GridPane.columnIndex="0" GridPane.columnSpan="1"
+    <SplitPane dividerPositions="0.8" orientation="VERTICAL" GridPane.columnIndex="0" GridPane.columnSpan="1"
                GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
         <SplitPane dividerPositions="0.2">
             <TreeView fx:id="namespacesTree"/>
             <TabPane id="tabs" fx:id="tabs"/>
         </SplitPane>
-        <ToolBar prefHeight="40.0" prefWidth="200.0">
-            <Button mnemonicParsing="false" text="clear console" onAction="#clearConsole"/>
-        </ToolBar>
 
-        <TextArea id="console" fx:id="console" editable="false" wrapText="true"/>
+        <GridPane>
+            <ToolBar prefHeight="40.0" prefWidth="200.0"
+                     GridPane.columnIndex="0"
+                     GridPane.rowIndex="0"
+                     GridPane.vgrow="NEVER" GridPane.hgrow="ALWAYS">
+                <Button mnemonicParsing="false" text="clear console" onAction="#clearConsole"/>
+            </ToolBar>
+            <TextArea GridPane.rowIndex="1" GridPane.vgrow="ALWAYS"
+                      GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
+                      id="console" fx:id="console" editable="false" wrapText="true"/>
+        </GridPane>
+
+
         <stylesheets>
             <URL value="@/css/browser.css"/>
         </stylesheets>

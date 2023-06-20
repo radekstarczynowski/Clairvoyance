@@ -32,7 +32,6 @@ public class RecordRow {
     }
 
     public Record getRecord() {
-        // TODO: 12/06/2023 it fetches record from server and in case of collection it will operate over and over again
         if (referent == null || referent.get() == null) {
             ClairvoyanceLogger.logger.warn("fetching record from server...");
             var client = ClairvoyanceFxApplication.getClient();

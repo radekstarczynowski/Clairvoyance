@@ -8,10 +8,6 @@ root {
     -fx-font-size: 12px;
     -fx-text-fill: #ffffff;
 }
-.text-inpust {
-	-fx-border-radius: 0.0 0.0 0.0 0.0;
-	-fx-background-radius: 0.0 0.0 0.0 0.0;
-}
 .button {
     -fx-text-fill: white;
     -fx-font-size: 12px;
