@@ -1,11 +1,7 @@
 # Clairvoyance
 
-run with <code>mvn clean compile javafx:run</code>
+this is a forked repository from https://github.com/rashidmayes/Clairvoyance
 
-#### this is forked repository https://github.com/rashidmayes/Clairvoyance
-
-### for intellij
-1. download javafx sdk
-2. add vm options:
-<code>--module-path >>some-path<</javafx-sdk-20.0.1/lib --add-modules javafx.graphics,javafx.base,javafx.controls,javafx.fxml,javafx.web</code>
-3. or can be run with <code>java >>modules<< -jar target/>>jar-with-dependencies<<</code>
+#### how to run?
+1. download javafx sdk https://gluonhq.com/products/javafx/
+2. run with <code>java --module-path >>some-path<</javafx-sdk-20.0.1/lib --add-modules javafx.graphics,javafx.base,javafx.controls,javafx.fxml,javafx.web -jar target/Clairvoyance-1.0.0-jar-with-dependencies.jar</code>
