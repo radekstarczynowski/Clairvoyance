@@ -32,8 +32,8 @@
                 hadAny = true
                 setsTableHtml += "<table id=\"sets\" class=\"table table-striped table-bordered\">"
                 let setObj = namespaceInfo.sets[set];
-                for(const property in setObj) {
-                    if(property === "properties") {
+                for (const property in setObj) {
+                    if (property === "properties") {
                         let props = setObj[property]
                         for (const prop in props) {
                             setsTableHtml += "<tr><td width=\"50%\">" + prop + "</td><td align=\"right\">" + props[prop] + "</td></tr>"
@@ -43,11 +43,10 @@
                     }
                 }
             }
-            if(hadAny) {
+            if (hadAny) {
                 setsTableHtml += "</table>"
             }
             setsDiv.innerHTML = setsTableHtml
-
 
 
             let propertiesTableHtml = "";
@@ -58,83 +57,6 @@
 
             propertiesTable.innerHTML = propertiesTableHtml;
         }
-        var ni = {
-            "name": "test",
-            "properties": {
-                "device_total_bytes": "4294967296",
-                "geo_region_query_points": "0",
-                "scan_basic_abort": "0",
-                "query_short_reqs": "0",
-                "query_ops_bg_failure": "0",
-                "geo2dsphere-within.level-mod": "1",
-                "storage-engine.compression-level": "0",
-                "udf_sub_tsvc_error": "0",
-                "memory_used_data_bytes": "417387",
-                "from_proxy_lang_error": "0",
-                "storage-engine": "device",
-                "client_lang_error": "0",
-                "replication-factor": "2",
-                "geo_region_query_falsepos": "0",
-                "client_write_filtered_out": "0",
-                "query_ops_bg_success": "0",
-                "truncate_lut": "0",
-                "storage-engine.file[0]": "/opt/aerospike/data/test.dat"
-            },
-            "sets": [{
-                "namespace": "test",
-                "name": "users",
-                "objectCount": 4767,
-                "bytesMemory": 417387,
-                "properties": {
-                    "device_data_bytes": "653712",
-                    "set": "users",
-                    "tombstones": "0",
-                    "ns": "test",
-                    "memory_data_bytes": "417387",
-                    "objects": "4767",
-                    "stop-writes-count": "0",
-                    "disable-eviction": "false",
-                    "truncate_lut": "0"
-                },
-                "id": "$set.test.users"
-            },
-                {
-                    "namespace": "test2",
-                    "name": "data",
-                    "objectCount": 4767,
-                    "bytesMemory": 417387,
-                    "properties": {
-                        "device_data_bytes": "653712",
-                        "set": "users",
-                        "tombstones": "0",
-                        "ns": "test",
-                        "memory_data_bytes": "417387",
-                        "objects": "4767",
-                        "stop-writes-count": "0",
-                        "disable-eviction": "false",
-                        "truncate_lut": "0"
-                    },
-                    "id": "$set.test.users"
-                }],
-            "id": "$namespace.test",
-            "type": "device",
-            "proleObjects": 0,
-            "usedBytesMemory": 722475,
-            "replicationFactor": 0,
-            "usedBytesDisk": 653712,
-            "masterObjects": 4767,
-            "totalBytesMemory": 1073741824,
-            "totalBytesDisk": 4294967296,
-            "freeMemoryPercent": 99,
-            "freeDiskPercent": 99,
-            "objects": 4767
-        }
-
-        window.onload = function () {
-
-            console.log(ni)
-            update(ni)
-        };
     </script>
 </head>
 <body style="padding: 20px;">
@@ -148,9 +70,8 @@
             <table id="summary" class="table table-striped table-bordered"></table>
 
             <h4>Sets</h4>
-            <div id="sets-div"></div>
-<!--            <table id="sets" class="table table-striped table-bordered"></table>-->
-
+            <div id="sets-div">
+            </div>
             <h4>Properties</h4>
             <table id="properties" class="table table-striped table-bordered"></table>
         </div>

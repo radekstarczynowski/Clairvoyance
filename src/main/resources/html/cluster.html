@@ -37,6 +37,7 @@
                 text += "<h4>" + node.host + "</h4>";
                 text += "<table class=\"table table-striped table-bordered\"><tr><th>Name</th><th>Type</th><th align=right>Master</th><th align=right>Prole</th><th align=right>Used Memory</th><th align=right>Used Disk</th><th align=right>Memory</th><th align=right>Disk</th><th align=right>Free Mem</th><th align=right>Free Disk</th></tr>";
                 for (var j = 0; j < node.namespaces.length; j++) {
+                    console.log(node.namespaces[j])
                     namespace = node.namespaces[j];
                     text += "<tr>"
                         + "<td>" + namespace.name + "</td>"
@@ -57,10 +58,6 @@
 
             table.innerHTML = text;
         }
-
-        window.onload = function() {
-            //update(nodes)
-        };
     </script>
 </head>
 <body style="padding: 10px;">
