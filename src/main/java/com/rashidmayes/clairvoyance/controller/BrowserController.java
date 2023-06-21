@@ -56,6 +56,10 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     @FXML
     public GridPane browserGridPane;
     @FXML
+    public GridPane consolePane;
+    @FXML
+    public SplitPane consoleSplitPane;
+    @FXML
     private TextArea console;
     @FXML
     private TreeView<SimpleTreeNode> namespacesTree;
@@ -205,6 +209,21 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     protected void handleExit(ActionEvent event) {
         event.consume();
         System.exit(0);
+    }
+
+    @FXML
+    protected void toggleConsole(ActionEvent event) {
+        event.consume();
+        if(console.isVisible()) {
+            console.setVisible(false);
+            console.setManaged(false);
+            consoleSplitPane.setDividerPositions(1.0);
+            consolePane.requestLayout();
+        } else {
+            console.setVisible(true);
+            console.setManaged(true);
+            consoleSplitPane.setDividerPositions(0.8);
+        }
     }
 
     @FXML

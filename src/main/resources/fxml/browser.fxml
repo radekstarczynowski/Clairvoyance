@@ -33,21 +33,23 @@
         </Menu>
     </MenuBar>
 
-    <SplitPane dividerPositions="0.8" orientation="VERTICAL" GridPane.columnIndex="0" GridPane.columnSpan="1"
+    <SplitPane fx:id="consoleSplitPane"
+               dividerPositions="0.8" orientation="VERTICAL" GridPane.columnIndex="0" GridPane.columnSpan="1"
                GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
         <SplitPane dividerPositions="0.2">
             <TreeView fx:id="namespacesTree"/>
             <TabPane id="tabs" fx:id="tabs"/>
         </SplitPane>
 
-        <GridPane>
+        <GridPane fx:id="consolePane">
             <ToolBar prefHeight="40.0" prefWidth="200.0"
                      GridPane.columnIndex="0"
                      GridPane.rowIndex="0"
                      GridPane.vgrow="NEVER" GridPane.hgrow="ALWAYS">
-                <Button mnemonicParsing="false" text="clear console" onAction="#clearConsole"/>
+                <Button mnemonicParsing="false" text="Clear console" onAction="#clearConsole"/>
+                <Button mnemonicParsing="false" text="Toggle console" onAction="#toggleConsole"/>
             </ToolBar>
-            <TextArea GridPane.rowIndex="1" GridPane.vgrow="ALWAYS"
+            <TextArea GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES"
                       GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
                       id="console" fx:id="console" editable="false" wrapText="true"/>
         </GridPane>
