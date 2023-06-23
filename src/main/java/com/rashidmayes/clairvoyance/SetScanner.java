@@ -8,7 +8,6 @@ import com.aerospike.client.policy.ScanPolicy;
 import com.rashidmayes.clairvoyance.model.ApplicationModel;
 import com.rashidmayes.clairvoyance.model.RecordRow;
 import com.rashidmayes.clairvoyance.util.ClairvoyanceLogger;
-import lombok.Getter;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,9 +15,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SetScanner {
-
-    // safety net to prevent from too much of memory consumption
-    public static final int MAX_RECORDS_FETCH = 1_000_000;
 
     public interface ScanCallbacks {
 
@@ -31,15 +27,11 @@ public class SetScanner {
     private final String namespace;
     private final String set;
     private final ScanCallbacks scanCallbacks;
-
-    @Getter
-    private final List<RecordRow> buffer;
     private volatile boolean scanCancelled;
 
     public SetScanner(String namespace, String set, ScanCallbacks scanCallbacks) {
         this.namespace = namespace;
         this.set = set;
-        this.buffer = Collections.synchronizedList(new LinkedList<>());
         this.scanCallbacks = scanCallbacks;
     }
 
@@ -74,9 +66,8 @@ public class SetScanner {
         if (scanCancelled) {
             throw new AerospikeException.ScanTerminated();
         }
-        if (internalBuffer.size() < MAX_RECORDS_FETCH) {
-            var recordRow = new RecordRow(key, record);
-            recordRow.setIndex(index);
+        if (internalBuffer.size() < ClairvoyanceFxApplication.MAX_RECORDS_PER_SET) {
+            var recordRow = new RecordRow(key, record, index);
             internalBuffer.add(recordRow);
         } else {
             ClairvoyanceLogger.logger.error("internal buffer full");
@@ -103,7 +94,7 @@ public class SetScanner {
     private ScanPolicy createScanPolicy() {
         var scanPolicy = new ScanPolicy();
         scanPolicy.totalTimeout = 4000;
-        scanPolicy.maxRecords = MAX_RECORDS_FETCH;
+        scanPolicy.maxRecords = ClairvoyanceFxApplication.MAX_RECORDS_PER_SET;
         scanPolicy.sendKey = true;
         return scanPolicy;
     }

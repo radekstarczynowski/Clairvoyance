@@ -15,8 +15,8 @@ public class SetInfo implements Identifiable {
 
     public String namespace;
     public String name;
-    public long objectCount;
-    public long bytesMemory;
+    public Long objectCount;
+    public Long bytesMemory;
     public Map<String, String> properties;
 
     @Override

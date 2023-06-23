@@ -42,8 +42,6 @@ public class SetController {
     @FXML
     public TextField searchKeyField;
     @FXML
-    public CheckBox readOnlyCheckbox;
-    @FXML
     public ComboBox<String> keyTypeComboBox;
     @FXML
     private GridPane rootPane;
@@ -51,8 +49,6 @@ public class SetController {
     public GridPane paginationGrid;
     @FXML
     private TextArea recordDetails;
-
-    private static final int ROWS_PER_PAGE = 30;
 
     private final ChangeListener<? super Scene> loadTableChangeListener = loadTableChangeListener();
     private final ChangeListener<? super RecordRow> rowClickedListener = rowClickedListener();
@@ -142,8 +138,8 @@ public class SetController {
                 index = 0;
             }
             ClairvoyanceLogger.logger.info("creating page with index {}", index);
-            int fromIndex = index * ROWS_PER_PAGE;
-            int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, list.size());
+            int fromIndex = index * ClairvoyanceFxApplication.RECORDS_PER_PAGE;
+            int toIndex = Math.min(fromIndex + ClairvoyanceFxApplication.RECORDS_PER_PAGE, list.size());
             if (fromIndex > toIndex) {
                 return null;
             }
@@ -270,7 +266,7 @@ public class SetController {
     }
 
     private Pagination createPaginationComponent(List<RecordRow> buffer) {
-        var pagination = new Pagination((buffer.size() / ROWS_PER_PAGE) + 1, 0);
+        var pagination = new Pagination((buffer.size() / ClairvoyanceFxApplication.RECORDS_PER_PAGE) + 1, 0);
         pagination.setPageFactory(createPage());
         pagination.prefWidthProperty().bind(paginationGrid.widthProperty());
         pagination.prefHeightProperty().bind(paginationGrid.heightProperty());

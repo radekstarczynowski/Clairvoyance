@@ -19,10 +19,19 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public class ClairvoyanceFxApplication extends Application {
+
+    // pagination based on this page size
+    public static final int RECORDS_PER_PAGE = 30;
+    // safety net to prevent from too much of memory consumption
+    public static final long MAX_RECORDS_PER_SET = 1_000_000;
+    // refresh namespace tree on the left side of the browser at given interval
+    public static final long REFRESH_BROWSER_INTERVAL = 10;
+    public static final TimeUnit REFRESH_BROWSER_INTERVAL_UNIT = TimeUnit.MINUTES;
 
     public static final Preferences PREFERENCES = Preferences.userNodeForPackage(ClairvoyanceFxApplication.class);
 

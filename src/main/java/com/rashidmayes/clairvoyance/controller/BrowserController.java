@@ -32,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode>> {
 
@@ -81,7 +80,12 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
         namespacesTree.getSelectionModel()
                 .selectedItemProperty()
                 .addListener(this);
-        executor.scheduleAtFixedRate(updateClusterTreeView(), 0, 2, TimeUnit.MINUTES);
+        executor.scheduleAtFixedRate(
+                updateClusterTreeView(),
+                0,
+                ClairvoyanceFxApplication.REFRESH_BROWSER_INTERVAL,
+                ClairvoyanceFxApplication.REFRESH_BROWSER_INTERVAL_UNIT
+        );
     }
 
     @Override
@@ -214,7 +218,7 @@ public class BrowserController implements ChangeListener<TreeItem<SimpleTreeNode
     @FXML
     protected void toggleConsole(ActionEvent event) {
         event.consume();
-        if(console.isVisible()) {
+        if (console.isVisible()) {
             console.setVisible(false);
             console.setManaged(false);
             consoleSplitPane.setDividerPositions(1.0);
